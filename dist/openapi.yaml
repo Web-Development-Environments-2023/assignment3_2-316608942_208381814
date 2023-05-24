@@ -18,10 +18,12 @@ tags:
 - name: developers
   description: Operations available to regular
 paths:
-  /Register:
+  /register:
     post:
-      summary: A new user from the client is added to the server.
-      description: A json object contains all the details about the new user.
+      tags:
+      - Auth
+      summary: A new user from the client is added to the server
+      description: A JSON object contains all the details about the new user.
       requestBody:
         description: Inventory item to add
         content:
@@ -32,87 +34,137 @@ paths:
       responses:
         "201":
           description: A new user has been added
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-        "400":
+        "400": 
           description: wrong input parameters
-  /LogIn:
+
+  /login:
     post:
-      summary: An existing user from the client is logged in to the server.
-      description: The server check in the json if the user name and password are correct.
+      tags:
+      - Auth
+      summary: Login an exist user
+      description: An exist user login to the system
       requestBody:
-        description: Inventory item to add
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LogIn'
+              $ref: '#/components/schemas/LoginScheme'
         required: true
       responses:
-        "201":
-          description: LogIn succeeded
-          content:
-            application/json:
+        "200":
+          description: |
+            User was found in the DB and authenitcated successfully. The session ID is returned in a cookie named `session`.  You should include this cookie in subsequent requests
+          headers:
+            Set-Cookie:
+              style: simple
+              explode: false
               schema:
-                $ref: '#/components/schemas/User'
-        "400":
-          description: Use name or password incorrect
-  /RandomRecipes:
-    get:
-      description: get random recipes to display
-      parameters:
-      - name: quantity
-        in: query
-        description: "number of wanted recipes, by default 3"
-        required: false
-        style: form
-        explode: true
-        schema:
-          minimum: 3
-          type: integer
-          example: 3
+                type: string
+                example: session=87s97sdhgf279293f8w0e9
+        "401":
+          description: Authentication failed
+
+  /logout:
+    post:
+      tags:
+        - Auth
+      summary: logout a user from the system and delete his cookie
       responses:
         "200":
-          description: successfully returned random recipes
+          description: "the user has been successfully logged out"
+
+    
+  /users/favorites:
+    get:
+      tags:
+      - Users
+      summary: Return the favorite recipes that were saved by user
+      description: Get an array of recipes that were saved by a specific user
+      responses:
+        "200":
+          description: data about the user's favorites recipes returned
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/SummariedRecipe'
-        "400":
-          description: quantity invalid
-  /LastSearch:
-    get:
-      description: get last search for logged in user
-      parameters:
-      - name: username
-        in: query
-        description: user
-        required: true
-        style: form
-        explode: true
-        schema:
-          type: string
-      - name: browser
-        in: query
-        description: brower
-        required: true
-        style: form
-        explode: true
-        schema:
-          type: string
+                  $ref: '#/components/schemas/RecipePreview'
+        "401":
+          description: user is not authorized
+      security:
+      - cookieAuth: []
+    post:
+      tags:
+      - Users
+      summary: save recipe in the favorites list of a user
+      description: save recipe in the favorites list of a user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                recipeId:
+                  type: string
+                  description: reciepe's id which the user saved
+                  example: 716429
       responses:
         "200":
-          description: OK
+          description: The Recipe successfully saved as favorite
+        "401":
+          description: user is not authorized
+      security:
+      - cookieAuth: []
+
+
+  /recipes/{recipeId}:
+    get:
+      tags:
+      - Recipes
+      summary: Return preview details on recipe by his ID
+      description: Return preview details on recipe by his ID
+      parameters:
+      - name: recipeId
+        in: path
+        description: recipe's id
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: data about the recipe
           content:
             application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/RecipePreview'
+        "404":
+          description: recipeId is not exists 
+
+
+  /recipes/getRecipe/{recipeId}:
+    get:
+      description: get a recipe by recipe id
+      parameters:
+      - name: id
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: data about the recipe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailedRecipe'
         "400":
-          description: last search unavailable
-  /SearchRecipe:
+          description: recipeId is not exists  
+
+
+  /recipes/searchRecipe:
     get:
       description: search recipes
       parameters:
@@ -132,223 +184,222 @@ paths:
         explode: true
         schema:
           type: string
-      - name: numberOfResultsToDisplay
-        in: query
-        required: false
-        style: form
-        explode: true
-        schema:
-          type: integer
-      - name: options
-        in: query
-        required: false
-        style: form
-        explode: true
-        schema:
-          $ref: '#/components/schemas/SearchOptions'
       responses:
         "200":
-          description: OK
+          description: data about the recipe
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/SummariedRecipe'
+                  $ref: '#/components/schemas/DetailedRecipe'
         "400":
-          description: search results unavailable
-  /createRecipe:
-    put:
-      description: create a new recipe
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/createRecipeParams'
-        required: true
-      responses:
-        "200":
-          description: successfully created recipe
-        "400":
-          description: recipe cretion faile
-  /setFavoriteRecipe:
-    put:
-      description: set recipe to be favorite
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/setFavoriteRecipebody'
-        required: true
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/inlineresponse200'
-        "400":
-          description: invalid params
-  /getFavioriteRecepies:
-    get:
-      description: get users favorit recipies
-      parameters:
-      - name: username
-        in: query
-        required: true
-        style: form
-        explode: true
-        schema:
-          type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/SummariedRecipe'
-        "400":
-          description: search results unavailable
-  /userWatchedRecipe:
-    get:
-      description: tag a recipe as watched by a user
-      parameters:
-      - name: username
-        in: query
-        required: true
-        style: form
-        explode: true
-        schema:
-          type: string
-      - name: recipeId
-        in: query
-        required: true
-        style: form
-        explode: true
-        schema:
-          type: integer
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: boolean
-        "400":
-          description: invalid params
-  /getLastWatchedRecipies:
-    get:
-      description: get the last recipe that the user watched
-      parameters:
-      - name: username
-        in: query
-        required: true
-        style: form
-        explode: true
-        schema:
-          type: string
-      - name: quantity
-        in: query
-        description: "number of wanted recipes, by default 3"
-        required: false
-        style: form
-        explode: true
-        schema:
-          type: integer
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/SummariedRecipe'
-        "400":
-          description: params invalid
-  /getMyRecepies:
-    get:
-      description: get the recipes that where written by the user
-      parameters:
-      - name: username
-        in: query
-        required: true
-        style: form
-        explode: true
-        schema:
-          type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/SummariedRecipe'
-        "400":
-          description: params invalid
-  /setMyRecipies:
-    post:
-      description: set the recipes written by the user
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-        required: true
-      responses:
-        "200":
-          description: successfully registered
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/setMyRecipeParams'
-        "400":
-          description: params invalid
-  /getRecipe:
-    get:
-      description: get a recipe by recipe id
-      parameters:
-      - name: id
-        in: query
-        required: true
-        style: form
-        explode: true
-        schema:
-          type: integer
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DetailedRecipe'
-        "400":
-          description: id invalid
+          description: recipeId is not exists    
+
+
+
+
+# ///////////////////////////////////////שלנו/////////////////////////////////////////
+  # /RandomRecipes:
+  #   get:
+  #     description: get random recipes to display
+  #     parameters:
+  #     - name: quantity
+  #       in: query
+  #       description: "number of wanted recipes, by default 3"
+  #       required: false
+  #       style: form
+  #       explode: true
+  #       schema:
+  #         minimum: 3
+  #         type: integer
+  #         example: 3
+  #     responses:
+  #       "200":
+  #         description: successfully returned random recipes
+  #         content:
+  #           application/json:
+  #             schema:
+  #               type: array
+  #               items:
+  #                 $ref: '#/components/schemas/SummariedRecipe'
+  #       "400":
+  #         description: quantity invalid
+  # /LastSearch:
+  #   get:
+  #     description: get last search for logged in user
+  #     parameters:
+  #     - name: username
+  #       in: query
+  #       description: user
+  #       required: true
+  #       style: form
+  #       explode: true
+  #       schema:
+  #         type: string
+  #     - name: browser
+  #       in: query
+  #       description: brower
+  #       required: true
+  #       style: form
+  #       explode: true
+  #       schema:
+  #         type: string
+  #     responses:
+  #       "200":
+  #         description: OK
+  #         content:
+  #           application/json:
+  #             schema:
+  #               type: string
+  #       "400":
+  #         description: last search unavailable
+ 
+  # /createRecipe:
+  #   put:
+  #     description: create a new recipe
+  #     requestBody:
+  #       content:
+  #         application/json:
+  #           schema:
+  #             $ref: '#/components/schemas/createRecipeParams'
+  #       required: true
+  #     responses:
+  #       "200":
+  #         description: successfully created recipe
+  #       "400":
+  #         description: recipe cretion faile
+  
+  # /userWatchedRecipe:
+  #   get:
+  #     description: tag a recipe as watched by a user
+  #     parameters:
+  #     - name: username
+  #       in: query
+  #       required: true
+  #       style: form
+  #       explode: true
+  #       schema:
+  #         type: string
+  #     - name: recipeId
+  #       in: query
+  #       required: true
+  #       style: form
+  #       explode: true
+  #       schema:
+  #         type: integer
+  #     responses:
+  #       "200":
+  #         description: OK
+  #         content:
+  #           application/json:
+  #             schema:
+  #               type: array
+  #               items:
+  #                 type: boolean
+  #       "400":
+  #         description: invalid params
+  # /getLastWatchedRecipies:
+  #   get:
+  #     description: get the last recipe that the user watched
+  #     parameters:
+  #     - name: username
+  #       in: query
+  #       required: true
+  #       style: form
+  #       explode: true
+  #       schema:
+  #         type: string
+  #     - name: quantity
+  #       in: query
+  #       description: "number of wanted recipes, by default 3"
+  #       required: false
+  #       style: form
+  #       explode: true
+  #       schema:
+  #         type: integer
+  #     responses:
+  #       "200":
+  #         description: OK
+  #         content:
+  #           application/json:
+  #             schema:
+  #               type: array
+  #               items:
+  #                 $ref: '#/components/schemas/SummariedRecipe'
+  #       "400":
+  #         description: params invalid
+  # /getMyRecepies:
+  #   get:
+  #     description: get the recipes that where written by the user
+  #     parameters:
+  #     - name: username
+  #       in: query
+  #       required: true
+  #       style: form
+  #       explode: true
+  #       schema:
+  #         type: string
+  #     responses:
+  #       "200":
+  #         description: OK
+  #         content:
+  #           application/json:
+  #             schema:
+  #               type: array
+  #               items:
+  #                 $ref: '#/components/schemas/SummariedRecipe'
+  #       "400":
+  #         description: params invalid
+  # /setMyRecipies:
+  #   post:
+  #     description: set the recipes written by the user
+  #     requestBody:
+  #       content:
+  #         application/json:
+  #           schema:
+  #             type: object
+  #       required: true
+  #     responses:
+  #       "200":
+  #         description: successfully registered
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/setMyRecipeParams'
+  #       "400":
+  #         description: params invalid
+ 
+
+
+
+
+
+
+
+
+
+# ///////////////////////////////////////מימשו לנו /////////////////////////////////////////
+
 components:
   schemas:
-    User:
+     User:
       type: object
       properties:
         username:
           maxLength: 8
           minLength: 3
           type: string
-          description: username contains between 3 to 8 letters only
-          example: Sapirosh
+          description: username conatins between 3 to 8 letters only
+          example: my_name
         firstname:
           type: string
           description: user's first name
-          example: Sapir
-        lasttname:
+          example: my_first_name
+        lastname:
           type: string
           description: user's last name
-          example: Sharabi
+          example: my_last_name
         country:
           type: string
           description: user's country
@@ -357,95 +408,84 @@ components:
           maxLength: 10
           minLength: 5
           type: string
-          description: "passwords contains  between 5 to 10 , at least one of them is a  number and a special char"
-          example: 1#23456789
-        passwordconfirmation:
-          type: string
-          example: 1#23456789
+          description: password conatins between 5 to 10 chars, at least one of them
+            is a number and a special char
+          format: password
+          example: my_name@12
         email:
+          pattern: email
           type: string
           description: user's email
-          example: sapsh@post.bgu.ac.il
-    LogIn:
+          example: my_name12@gmail.com
+        # image-url:
+        #   pattern: URL
+        #   type: string
+        #   description: URL for the user's image
+        #   example: https://cloudinary.com/
+      description: Model containing user info
+
+     LoginScheme:
       type: object
       properties:
         username:
           maxLength: 8
           minLength: 3
           type: string
-          description: username contains between 3 to 8 letters only
-          example: Sapirosh
+          description: username conatins letters only
         password:
           maxLength: 10
           minLength: 5
-          type: string
-          description: "passwords contains  between 5 to 10 , at least one of them is a  number and a special char"
-          example: 1#23456789
-    SummariedRecipe:
+          description: password conatins at least one number and one special char
+          format: password       
+      example:
+        username: my_name
+        password: my_name@12
+
+
+     RecipePreview:
       type: object
       properties:
         id:
           type: integer
+          description: recipe identifier
+          example: 102
+        title:
+          type: string
+          description: recipe name
+          example: Simple Macaroni and Cheese
+        image:
+          type: string
+          description: recipe image
+          format: URL
+          example: https://spoonacular.com/recipeimages/655455-566x370.jpg
+        readyInMinutes:
+          type: integer
+          description: the time takes to make this recipe
           example: 45
-        name:
-          type: string
-        description:
-          type: string
-        publishedIn:
-          type: string
-        timeToPrepare:
+        popularity:
           type: integer
-        imagePath:
-          type: string
-        foodId:
-          type: integer
-    SearchOptions:
-      type: object
-      properties:
-        isFood:
+          description: how many likes got this recipe
+          example: 5987
+        vegetarian:
           type: boolean
-          description: true if user is searchong for specific food
-        quantity:
-          type: integer
-          description: "the user choose the amount of recipes to desply 5/10/15 , by default 5."
-        dietType:
-          $ref: '#/components/schemas/DietType'
-    DietType:
-      type: string
-      enum:
-      - keto
-      - sugar free
-      - healthy
-      - junk food
-      - gluten free
-      - vegan
-      - vegetarian
-      - kohsher
-    createRecipeParams:
-      type: object
-      properties:
-        detailedRecipe:
-          $ref: '#/components/schemas/DetailedRecipe'
-        username:
-          type: string
-    setMyRecipeParams:
-      type: object
-      properties:
-        detailedRecipe:
-          $ref: '#/components/schemas/DetailedRecipe'
-        username:
-          type: string
-    DetailedRecipe:
+          description: indication if the recipe is vegetarian
+          example: false
+        vegan:
+          type: boolean
+          description: indication if the recipe is vegan
+          example: false
+        glutenFree:
+          type: boolean
+          description: indication if the recipe is gluten free
+          example: false
+
+  
+
+     DetailedRecipe:
       type: object
       properties:
         recipe:
-          $ref: '#/components/schemas/SummariedRecipe'
-        likes:
-          type: integer
-        dietTypes:
-          type: array
-          items:
-            $ref: '#/components/schemas/DietType'
+          $ref: '#/components/schemas/RecipePreview'
         Ingredients:
           type: array
           items:
@@ -454,13 +494,16 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Step'
-    Ingredient:
+        Serving:
+          type: int
+
+     Ingredient:
       type: object
       properties:
         name:
           type: string
           example: sugar
-    Step:
+     Step:
       type: object
       properties:
         index:
@@ -470,26 +513,70 @@ components:
           example: mix all ingredients
         isDone:
           type: boolean
-    Food:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-        Recipes:
-          type: array
-          items:
-            $ref: '#/components/schemas/SummariedRecipe'
-    setFavoriteRecipebody:
-      type: object
-      properties:
-        recipeId:
-          type: integer
-        username:
-          type: string
-    inlineresponse200:
-      type: object
-      properties:
-        status:
-          type: boolean
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  # //////////////////////////////////////////שלנו////////////////////////////////////////
+
+    
+    # SearchOptions:
+    #   type: object
+    #   properties:
+    #     isFood:
+    #       type: boolean
+    #       description: true if user is searchong for specific food
+    #     quantity:
+    #       type: integer
+    #       description: "the user choose the amount of recipes to desply 5/10/15 , by default 5."
+    #     dietType:
+    #       $ref: '#/components/schemas/DietType'
+    # DietType:
+    #   type: string
+    #   enum:
+    #   - keto
+    #   - sugar free
+    #   - healthy
+    #   - junk food
+    #   - gluten free
+    #   - vegan
+    #   - vegetarian
+    #   - kohsher
+    # createRecipeParams:
+    #   type: object
+    #   properties:
+    #     detailedRecipe:
+    #       $ref: '#/components/schemas/DetailedRecipe'
+    #     username:
+    #       type: string
+    # setMyRecipeParams:
+    #   type: object
+    #   properties:
+    #     detailedRecipe:
+    #       $ref: '#/components/schemas/DetailedRecipe'
+    #     username:
+    #       type: string
+    
+    # Food:
+    #   type: object
+    #   properties:
+    #     id:
+    #       type: integer
+    #     name:
+    #       type: string
+    #     Recipes:
+    #       type: array
+    #       items:
+    #         $ref: '#/components/schemas/SummariedRecipe'
+    
+  

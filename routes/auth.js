@@ -13,11 +13,11 @@ router.post("/Register", async (req, res, next) => {
       username: req.body.username,
       firstname: req.body.firstname,
       lastname: req.body.lastname,
-      country: req.body.country,
       password: req.body.password,
+      country: req.body.country,
       email: req.body.email,
-      profilePic: req.body.profilePic
-    }
+      //profilePic: req.body.profilePic
+    };
     let users = [];
     users = await DButils.execQuery("SELECT username from users");
 

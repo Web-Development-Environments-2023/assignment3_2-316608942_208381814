@@ -9,7 +9,51 @@ async function getFavoriteRecipes(user_id){
     return recipes_id;
 }
 
+async function isWatched(username, recipeId) {
+    let res = await DButils.execQuery(
+      `select recipeId from recipewatched where username='${username}' AND recipeId='${recipeId}'`
+    );
+    if (res.length == 0) {
+      return false;
+    }
+    return true;
+  }
+ 
+async function insertWatched(username, recipe_id) {
+    await DButils.execQuery(
+        `insert into recipewatched values ('${username}','${recipe_id}',NOW()) ON DUPLICATE KEY UPDATE time=NOW()`
+);
+
+}
+async function isFavorite(username, recipeId) {
+    let res = await DButils.execQuery(
+      `select recipeId from recipefavorite where username='${username}' AND recipeId='${recipeId}'`
+    );
+    if (res.length == 0) {
+      return false;
+    }
+    return true;
+  }
+
+async function insertFavorite(username, recipe_id) {
+    await DButils.execQuery(
+        `insert into recipefavorite values ('${username}',${recipe_id})`
+);
+}
+
+async function getLastWatches(username) {
+    const lastWatches = await DButils.execQuery(
+      `select recipeId from recipewatched where username='${username}' ORDER BY time DESC LIMIT 3`
+    );
+    return lastWatches;
+  }
+  
 
 
 exports.markAsFavorite = markAsFavorite;
 exports.getFavoriteRecipes = getFavoriteRecipes;
+exports.isWatched = isWatched;
+exports.insertWatched = insertWatched;
+exports.isFavorite = isFavorite;
+exports.insertFavorite = insertFavorite;
+
