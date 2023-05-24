@@ -109,10 +109,10 @@ async function getRandomRecipesAPI() {
     }
     return recipes;
   }
-
+///לחזור איך מוסיפים הוראות הכנה
   async function searchRecipeAPI(query) {
     query["apiKey"] = process.env.spooncular_apiKey;
-    query["number"] ? null : (queryParams["number"] = 5);
+    query["number"] ? null : (query["number"] = 5);
     query["instructionsRequired"] = true;
     query["addRecipeInformation"] = true;
     console.log(query);
@@ -121,7 +121,7 @@ async function getRandomRecipesAPI() {
     });
   }
 
-  async function extractRecipesPreview(username, recipes) {
+  async function getRecipesPreview(username, recipes) {
     let recipesToReturn = [];
     for (let i = 0; i < recipes.length; i++) {
       let recipe = recipes[i];
@@ -154,6 +154,7 @@ async function getRandomRecipesAPI() {
 
 exports.getRecipeDetails = getRecipeDetails;
 exports.searchrecipe = searchrecipe;
+exports.getRecipesPreview = getRecipesPreview;
 
 
 

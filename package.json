@@ -4,8 +4,7 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "start": "node main.js",
-    "install": "npm install"
+    "start": "node main.js"
   },
   "keywords": [],
   "author": "",

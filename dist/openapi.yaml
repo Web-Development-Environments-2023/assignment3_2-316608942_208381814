@@ -490,8 +490,14 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Ingredient'
-        Instructions:
-          type: array
+        Intolerance:
+          type: string
+        Cuisine:
+          type: string
+        Diet:
+          type: string
+        InstructionsRequired:
+          type: boolean
           items:
             $ref: '#/components/schemas/Step'
         Serving:

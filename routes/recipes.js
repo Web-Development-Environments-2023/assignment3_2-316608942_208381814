@@ -62,9 +62,7 @@ router.get("/searchRecipe", async(req,res,next)=>{
 router.get('/createRecipe', async (req,res,next) => {
   try{
     const username = req.session.username;
-    
     const recipe_id = req.session.recipe_id;
-    let favorite_recipes = {};
     const recipes_id = await user_utils.getFavoriteRecipes(user_id);
     let recipes_id_array = [];
     recipes_id.map((element) => recipes_id_array.push(element.recipe_id)); //extracting the recipe ids into array
@@ -74,7 +72,6 @@ router.get('/createRecipe', async (req,res,next) => {
     next(error); 
   }
 });
-
 
 
 module.exports = router;

@@ -35,11 +35,7 @@ async function isFavorite(username, recipeId) {
     return true;
   }
 
-async function insertFavorite(username, recipe_id) {
-    await DButils.execQuery(
-        `insert into recipefavorite values ('${username}',${recipe_id})`
-);
-}
+
 
 async function getLastWatches(username) {
     const lastWatches = await DButils.execQuery(
@@ -47,6 +43,13 @@ async function getLastWatches(username) {
     );
     return lastWatches;
   }
+
+async function getMyRecipes(username){
+  const recipes = await DButils.execQuery(
+    `select recipeId from userRecipes where username='${username}'`
+  );
+  return recipes;
+}
   
 
 
@@ -55,5 +58,5 @@ exports.getFavoriteRecipes = getFavoriteRecipes;
 exports.isWatched = isWatched;
 exports.insertWatched = insertWatched;
 exports.isFavorite = isFavorite;
-exports.insertFavorite = insertFavorite;
+exports.getMyRecipes = getMyRecipes;
 
