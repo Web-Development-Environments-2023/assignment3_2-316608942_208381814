@@ -8,10 +8,10 @@ const recipe_utils = require("./utils/recipes_utils");
  * Authenticate all incoming requests by middleware
  */
 router.use(async function (req, res, next) {
-  if (req.session && req.session.username) {
+  if (req.session && req.session.user_id) {
     DButils.execQuery("SELECT user_id FROM users").then((users) => {
-      if (users.find((x) => x.username === req.session.username)) {
-        req.username = req.session.username;
+      if (users.find((x) => x.user_id === req.session.user_id)) {
+        req.user_id = req.session.user_id;
         next();
       }
     }).catch(err => next(err));
@@ -44,8 +44,8 @@ router.get('/favorites', async (req,res,next) => {
     let favorite_recipes = {};
     const recipes_id = await user_utils.getFavoriteRecipes(user_id);
     let recipes_id_array = [];
-    recipes_id.map((element) => recipes_id_array.push(element.recipe_id)); //extracting the recipe ids into array
-    const results = await recipe_utils.getRecipesPreview(recipes_id_array);
+    recipes_id.map((element) => recipes_id_array.push(element.recipeId)); //extracting the recipe ids into array
+    const results = await recipe_utils.getRecipesPreview(user_id,recipes_id_array);
     res.status(200).send(results);
   } catch(error){
     next(error); 
@@ -57,11 +57,11 @@ router.get('/favorites', async (req,res,next) => {
 */
 router.get("/lastWatches", async (req, res, next) => {
  try {
-   const username = req.session.username;
-   const recipes_id = await user_utils.getLastWatches(username);
+   const user_id = req.session.user_id;
+   const recipes_id = await user_utils.getLastWatches(user_id);
    let recipes_id_array = [];
    recipes_id.map((element) => recipes_id_array.push(element.recipeId)); //extracting the recipe ids into array
-   const results = await recipe_utils.extractRecipesPreview(username,recipes_id_array);
+   const results = await recipe_utils.extractRecipesPreview(user_id,recipes_id_array);
    res.status(200).send(results);
  } catch (error) {
    next(error);

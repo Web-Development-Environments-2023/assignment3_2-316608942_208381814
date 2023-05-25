@@ -195,6 +195,20 @@ paths:
                   $ref: '#/components/schemas/DetailedRecipe'
         "400":
           description: recipeId is not exists    
+  /recipes/random:
+    get:
+      description: get random recipes
+      responses:
+        "200":
+          description: data about the random recipes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DetailedRecipe'
+        "400":
+          description: recipes not found 
 
 
 

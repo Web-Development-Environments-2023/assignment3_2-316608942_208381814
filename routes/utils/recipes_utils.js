@@ -1,6 +1,7 @@
 const axios = require("axios");
 const api_domain = "https://api.spoonacular.com/recipes";
-
+const user_utils = require("./user_utils");
+const DButils = require("./DButils");
 
 
 /**
@@ -12,7 +13,7 @@ const api_domain = "https://api.spoonacular.com/recipes";
 async function getRecipeInformationAPI(recipe_id) {
     return await axios.get(`${api_domain}/${recipe_id}/information`, {
         params: {
-            includeNutrition: false,
+            // includeNutrition: false,
             apiKey: process.env.spooncular_apiKey
         }
     });
@@ -43,9 +44,9 @@ async function getRecipeDetails(recipe_id,username) {
     };
 }
 
-async function getRecipeFullDetails(recipe_id,username) {
-    let isWatched = username? await user_utils.isWatched(username, recipe_id): false;
-    let isFavorite = username? await user_utils.isFavorite(username, recipe_id): false;
+async function getRecipeFullDetails(recipe_id,user_id) {
+    let isWatched = user_id? await user_utils.isWatched(user_id, recipe_id): false;
+    let isFavorite = user_id? await user_utils.isFavorite(user_id, recipe_id): false;
     let recipe_info = await getRecipeInformationAPI(recipe_id);
     
 
@@ -78,7 +79,7 @@ async function getRandomRecipesAPI() {
     });
   }
   
-  async function getRandomRecipes(username) {
+  async function getRandomRecipes(user_id) {
     let recipes_info = await getRandomRecipesAPI();
     let recipes = [];
     for (let i = 0; i < recipes_info.data.recipes.length; i++) {
@@ -92,8 +93,8 @@ async function getRandomRecipesAPI() {
         vegetarian,
         glutenFree,
       } = recipes_info.data.recipes[i];
-      let isWatched = username ? await user_utils.isWatched(username, id) : false;
-      let isFavorite = username? await user_utils.isFavorite(username, id): false;
+      let isWatched = user_id ? await user_utils.isWatched(user_id, id) : false;
+      let isFavorite = user_id? await user_utils.isFavorite(user_id, id): false;
       recipes.push({
         id: id,
         title: title,
@@ -121,12 +122,12 @@ async function getRandomRecipesAPI() {
     });
   }
 
-  async function getRecipesPreview(username, recipes) {
+  async function getRecipesPreview(user_id, recipes) {
     let recipesToReturn = [];
     for (let i = 0; i < recipes.length; i++) {
       let recipe = recipes[i];
-      let isWatched = username? await user_utils.isWatched(username, recipe.id): false;
-      let isFavorite = username? await user_utils.isFavorite(username, recipe.id): false;
+      let isWatched = user_id? await user_utils.isWatched(user_id, recipe.id): false;
+      let isFavorite = user_id? await user_utils.isFavorite(user_id, recipe.id): false;
       recipesToReturn.push({
         id: recipe.id,
         title: recipe.title,
@@ -143,9 +144,9 @@ async function getRandomRecipesAPI() {
     return recipesToReturn;
   }
 
-  async function searchrecipe(username,query){
+  async function searchrecipe(user_id,query){
     let recipes_info = await SearchRecipesAPI(query);
-    return await extractRecipesPreview(username, recipes_info.data.results);
+    return await getRecipesPreview(user_id, recipes_info.data.results);
   }
 
 
@@ -155,6 +156,7 @@ async function getRandomRecipesAPI() {
 exports.getRecipeDetails = getRecipeDetails;
 exports.searchrecipe = searchrecipe;
 exports.getRecipesPreview = getRecipesPreview;
+exports.getRandomRecipes = getRandomRecipes;
 
 
 
