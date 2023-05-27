@@ -41,7 +41,6 @@ router.post('/favorites', async (req,res,next) => {
 router.get('/favorites', async (req,res,next) => {
   try{
     const user_id = req.session.user_id;
-    let favorite_recipes = {};
     const recipes_id = await user_utils.getFavoriteRecipes(user_id);
     let recipes_id_array = [];
     recipes_id.map((element) => recipes_id_array.push(element.recipeId)); //extracting the recipe ids into array
@@ -55,13 +54,13 @@ router.get('/favorites', async (req,res,next) => {
 /**
 * This path returns the last watched recipes by the current user that logged-in.
 */
-router.get("/lastWatches", async (req, res, next) => {
+router.get("/getlastWatches", async (req, res, next) => {
  try {
    const user_id = req.session.user_id;
    const recipes_id = await user_utils.getLastWatches(user_id);
    let recipes_id_array = [];
    recipes_id.map((element) => recipes_id_array.push(element.recipeId)); //extracting the recipe ids into array
-   const results = await recipe_utils.extractRecipesPreview(user_id,recipes_id_array);
+   const results = await recipe_utils.getRecipesPreview(user_id,recipes_id_array);
    res.status(200).send(results);
  } catch (error) {
    next(error);
@@ -70,9 +69,9 @@ router.get("/lastWatches", async (req, res, next) => {
 
 router.get('/myRecipes', async(req,res,next) => {
   try{
-    const username = req.session.username;
-    const recipes = await user_utils.getMyRecipes(username);
-    const results = await recipe_utils.getRecipesPreview(username,recipes);
+    const user_id = req.session.user_id;
+    const recipes = await user_utils.getMyRecipes(user_id);
+    const results = await recipe_utils.getRecipesPreview(user_id,recipes);
     res.send(results);
   } catch(error){
     next(error);

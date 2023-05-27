@@ -142,7 +142,7 @@ paths:
           description: recipeId is not exists 
 
 
-  /recipes/getRecipe/{recipeId}:
+  /recipes/getRecipeFullDetails/{recipeId}:
     get:
       description: get a recipe by recipe id
       parameters:
@@ -159,7 +159,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DetailedRecipe'
+                $ref: '#/components/schemas/FullDetailedRecipe'
         "400":
           description: recipeId is not exists  
 
@@ -194,7 +194,10 @@ paths:
                 items:
                   $ref: '#/components/schemas/DetailedRecipe'
         "400":
-          description: recipeId is not exists    
+          description: recipeId is not exists 
+
+
+
   /recipes/random:
     get:
       description: get random recipes
@@ -209,6 +212,61 @@ paths:
                   $ref: '#/components/schemas/DetailedRecipe'
         "400":
           description: recipes not found 
+
+  /recipes/createRecipe:
+    post:
+      description: add new recipe by user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/createRecipe'
+        required: true
+        responses:
+          "200":
+            description: a new recipe was added to recipes table
+            content:
+              application/json:
+                schema:
+                  items:
+                    $ref: '#/components/schemas/createRecipe'
+          "400":
+            description: couldn't add recipe to site 
+
+
+  /users/getlastWatches:
+    get:
+      description: get 3 last watches recipes
+      responses:
+        "200":
+          description: data about the last watched recipes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DetailedRecipe'
+        "400":
+          description: no open session 
+
+
+  /users/myRecipes:
+    get:
+      description: get all recipes of the user
+      responses:
+        "200":
+          description: perviews all recipes of the user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DetailedRecipe'
+        "400":
+          description: error perviewing the recipes of the user
+
+
+
 
 
 
@@ -494,16 +552,73 @@ components:
           example: false
 
   
+     FullDetailedRecipe:
+      type: object
+      properties:
+        recipe:
+          $ref: '#/components/schemas/RecipePreview'
+      Ingredients:
+        type: array
+        items:
+          $ref: '#/components/schemas/Ingredient'
+      InstructionsRequired:
+        type: boolean
+        items:
+          $ref: '#/components/schemas/Step'
+      Serving:
+        type: int          
+
+     createRecipe:
+      type: object
+      properties:
+        image:
+          type: string
+          description: recipe image
+          format: URL
+          example: https://spoonacular.com/recipeimages/655455-566x370.jpg
+        title:
+          type: string
+          description: recipe name
+          example: Simple Macaroni and Cheese
+        readyInMinutes:
+          type: integer
+          description: the time takes to make this recipe
+          example: 45
+        popularity:
+          type: integer
+          description: how many likes got this recipe
+          example: 5987
+        vegetarian:
+          type: boolean
+          description: indication if the recipe is vegetarian
+          example: false
+        vegan:
+          type: boolean
+          description: indication if the recipe is vegan
+          example: false
+        glutenFree:
+          type: boolean
+          description: indication if the recipe is gluten free
+          example: false
+        ingredients:
+          type: string
+          description: the recipes ingredients
+          example: "salt, onion"
+        servings:
+          type: integer
+          description: the number of plates that is made by this recipe
+          example: 5
+        instructions:
+          type: string
+          description: steps for making this recipe
+          example: "mix the ingredients in a bowl"
+
 
      DetailedRecipe:
       type: object
       properties:
         recipe:
           $ref: '#/components/schemas/RecipePreview'
-        Ingredients:
-          type: array
-          items:
-            $ref: '#/components/schemas/Ingredient'
         Intolerance:
           type: string
         Cuisine:
@@ -514,8 +629,6 @@ components:
           type: boolean
           items:
             $ref: '#/components/schemas/Step'
-        Serving:
-          type: int
 
      Ingredient:
       type: object

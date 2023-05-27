@@ -1,6 +1,7 @@
 var express = require("express");
 var router = express.Router();
 const recipes_utils = require("./utils/recipes_utils");
+const user_utils = require("./utils/user_utils");
 
 router.get("/", (req, res) => res.send("im here"));
 
@@ -17,26 +18,15 @@ router.get("/random", async (req, res, next) => {
   }
 });
 
-/**
- * This path returns a preview details of a recipe by its id
- */
-router.get("/:recipeId", async (req, res, next) => {
-  try {
-    const recipe = await recipes_utils.getRecipeDetails(req.params.recipeId);
-    res.send(recipe);
-  } catch (error) {
-    next(error);
-  }
-});
-
-
 
 /**
  * This path returns a full details of a recipe by its id
  */
 router.get("/getRecipeFullDetails/:recipeId", async (req, res, next) => {
   try {
-    const recipe = await recipes_utils.getRecipeFullDetails(req.params.recipeId);
+    const user_id = req.session.user_id;
+    const recipe = await recipes_utils.getRecipeFullDetails(req.params.recipeId,user_id);
+    await user_utils.insertWatched(user_id,req.params.recipeId);
     res.send(recipe);
   } catch (error) {
     next(error);
@@ -48,8 +38,8 @@ router.get("/getRecipeFullDetails/:recipeId", async (req, res, next) => {
  */
 router.get("/searchRecipe", async(req,res,next)=>{
   try{
-    const username= req.session.username;
-    const recipes = await recipes_utils.searchrecipe(username,req.query);
+    const user_id= req.session.user_id;
+    const recipes = await recipes_utils.searchrecipe(user_id,req.query);
     res.send(recipes);
   }
   catch(error){
@@ -60,17 +50,40 @@ router.get("/searchRecipe", async(req,res,next)=>{
 /**
  * This path returns the favorites recipes that were saved by the logged-in user
  */
-router.get('/createRecipe', async (req,res,next) => {
+router.post('/createRecipe', async (req,res,next) => {
   try{
-    const username = req.session.username;
-    const recipe_id = req.session.recipe_id;
-    const recipes_id = await user_utils.getFavoriteRecipes(user_id);
-    let recipes_id_array = [];
-    recipes_id.map((element) => recipes_id_array.push(element.recipe_id)); //extracting the recipe ids into array
-    const results = await recipe_utils.getRecipesPreview(recipes_id_array);
-    res.status(200).send(results);
+    const user_id = req.session.user_id;
+    const recipe = req.body;
+    await recipes_utils.insertRecipe(user_id,recipe);
+    res.status(200).send("The recipe was successfully added to the site!");
   } catch(error){
     next(error); 
+  }
+});
+
+/**
+ * This path returns a preview details of a recipe by its id
+ */
+// router.get("/:recipeId", async (req, res, next) => {
+//   try {
+//     const user_id = req.session.user_id;
+//     const recipeId=req.params.recipeId;
+//     const recipe = await recipes_utils.getRecipeDetails(recipeId);
+//     await user_utils.insertWatched(user_id,recipeId);
+//     res.send(recipe);
+//   } catch (error) {
+//     next(error);
+//   }
+// });
+
+router.get("/:recipeId", async (req, res, next) => {
+  try {
+    const user_id = req.session.user_id;
+    const recipe = await recipes_utils.getRecipeDetails(req.params.recipeId);
+    await user_utils.insertWatched(user_id, req.params.recipeId);
+    res.send(recipe);
+  } catch (error) {
+    next(error);
   }
 });
 
