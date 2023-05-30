@@ -139,13 +139,6 @@ async function getRandomRecipesAPI() {
 
   async function searchrecipe(user_id,query){
     let recipes_info = await searchRecipeAPI(query);
-
-
-    await DButils.execQuery(
-      `insert ignore into lastsearch (user_id,search) values ('${user_id}','${query["query"]}') ON DUPLICATE KEY UPDATE search = '${query["query"]}'`
-    );
-    await DButils.execQuery( `COMMIT`);
-
     return await getRecipesPreview(user_id, recipes_info.data.results);
   }
 

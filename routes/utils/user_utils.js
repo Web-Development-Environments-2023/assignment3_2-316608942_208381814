@@ -65,13 +65,6 @@ async function getFamilyRecipes(user_id) {
   return recipes;
 }
 
-async function getLastSearch(user_id){
-  const last_search = await DButils.execQuery(
-    `SELECT search FROM lastsearch WHERE user_id = '${user_id}'`
-    );
-  await DButils.execQuery( `COMMIT`);
-  return search;
-}
 
 
 exports.markAsFavorite = markAsFavorite;
@@ -82,5 +75,4 @@ exports.isFavorite = isFavorite;
 exports.getMyRecipes = getMyRecipes;
 exports.getLastWatches = getLastWatches;
 exports.getFamilyRecipes = getFamilyRecipes;
-exports.getLastSearch=getLastSearch;
 

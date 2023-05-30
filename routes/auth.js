@@ -74,10 +74,6 @@ router.post("/Login", async (req, res, next) => {
 
 router.post("/Logout", async (req, res, next) => {
   try {
-    await DButils.execQuery(
-      `DELETE FROM lastsearch WHERE user_id = '${req.session.user_id}'`
-      );
-    await DButils.execQuery( `COMMIT`);
     req.session.reset(); // reset the session info --> send cookie when  req.session == undefined!!
     res.send({ success: true, message: "logout succeeded" });
   }catch (error) {
