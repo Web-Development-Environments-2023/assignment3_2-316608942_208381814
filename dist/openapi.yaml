@@ -17,6 +17,8 @@ tags:
   description: Secured Admin-only calls
 - name: developers
   description: Operations available to regular
+
+
 paths:
   /register:
     post:
@@ -79,6 +81,13 @@ paths:
       - Users
       summary: Return the favorite recipes that were saved by user
       description: Get an array of recipes that were saved by a specific user
+      parameters:
+        - in: cookie
+          name: user_id
+          description: The user id to retrieve its' favorite recipes
+          required: true
+          schema:
+            type: integer
       responses:
         "200":
           description: data about the user's favorites recipes returned
@@ -97,6 +106,13 @@ paths:
       - Users
       summary: save recipe in the favorites list of a user
       description: save recipe in the favorites list of a user
+      parameters:
+        - in: cookie
+          name: user_id
+          description: The user id to retrieve its' favorite recipes
+          required: true
+          schema:
+            type: integer
       requestBody:
         content:
           application/json:
@@ -129,6 +145,12 @@ paths:
         required: true
         style: simple
         explode: false
+        schema:
+          type: integer
+      - in: cookie
+        name: user_id
+        description: The user id to mark if the recipe was watched  
+        required: true
         schema:
           type: integer
       responses:
@@ -168,14 +190,12 @@ paths:
     get:
       description: search recipes
       parameters:
-      - name: username
-        in: query
-        description: user
+      - in: cookie
+        name: user_id
+        description: The user id to mark if the recipe was watched
         required: true
-        style: form
-        explode: true
         schema:
-          type: string
+          type: integer    
       - name: query
         in: query
         description: query for search
@@ -201,6 +221,13 @@ paths:
   /recipes/random:
     get:
       description: get random recipes
+      parameters:
+        - in: cookie
+          name: user_id
+          description: The user id to mark if the recipe was watched
+          required: true
+          schema:
+            type: integer    
       responses:
         "200":
           description: data about the random recipes
@@ -216,6 +243,13 @@ paths:
   /recipes/createRecipe:
     post:
       description: add new recipe by user
+      parameters:
+        - in: cookie
+          name: user_id
+          description: The user id to add to the new recipe.
+          required: true
+          schema:
+            type: integer
       requestBody:
         content:
           application/json:
@@ -237,6 +271,13 @@ paths:
   /users/getlastWatches:
     get:
       description: get 3 last watches recipes
+      parameters:
+        - in: cookie
+          name: user_id
+          description: The user id to retrieve the users last watches
+          required: true
+          schema:
+            type: integer          
       responses:
         "200":
           description: data about the last watched recipes
@@ -253,6 +294,13 @@ paths:
   /users/myRecipes:
     get:
       description: get all recipes of the user
+      parameters:
+        - in: cookie
+          name: user_id
+          description: The user id to retrieve its' recipes
+          required: true
+          schema:
+            type: integer    
       responses:
         "200":
           description: perviews all recipes of the user
@@ -265,193 +313,27 @@ paths:
         "400":
           description: error perviewing the recipes of the user
 
-
-
-
-
-
-
-# ///////////////////////////////////////שלנו/////////////////////////////////////////
-  # /RandomRecipes:
-  #   get:
-  #     description: get random recipes to display
-  #     parameters:
-  #     - name: quantity
-  #       in: query
-  #       description: "number of wanted recipes, by default 3"
-  #       required: false
-  #       style: form
-  #       explode: true
-  #       schema:
-  #         minimum: 3
-  #         type: integer
-  #         example: 3
-  #     responses:
-  #       "200":
-  #         description: successfully returned random recipes
-  #         content:
-  #           application/json:
-  #             schema:
-  #               type: array
-  #               items:
-  #                 $ref: '#/components/schemas/SummariedRecipe'
-  #       "400":
-  #         description: quantity invalid
-  # /LastSearch:
-  #   get:
-  #     description: get last search for logged in user
-  #     parameters:
-  #     - name: username
-  #       in: query
-  #       description: user
-  #       required: true
-  #       style: form
-  #       explode: true
-  #       schema:
-  #         type: string
-  #     - name: browser
-  #       in: query
-  #       description: brower
-  #       required: true
-  #       style: form
-  #       explode: true
-  #       schema:
-  #         type: string
-  #     responses:
-  #       "200":
-  #         description: OK
-  #         content:
-  #           application/json:
-  #             schema:
-  #               type: string
-  #       "400":
-  #         description: last search unavailable
- 
-  # /createRecipe:
-  #   put:
-  #     description: create a new recipe
-  #     requestBody:
-  #       content:
-  #         application/json:
-  #           schema:
-  #             $ref: '#/components/schemas/createRecipeParams'
-  #       required: true
-  #     responses:
-  #       "200":
-  #         description: successfully created recipe
-  #       "400":
-  #         description: recipe cretion faile
-  
-  # /userWatchedRecipe:
-  #   get:
-  #     description: tag a recipe as watched by a user
-  #     parameters:
-  #     - name: username
-  #       in: query
-  #       required: true
-  #       style: form
-  #       explode: true
-  #       schema:
-  #         type: string
-  #     - name: recipeId
-  #       in: query
-  #       required: true
-  #       style: form
-  #       explode: true
-  #       schema:
-  #         type: integer
-  #     responses:
-  #       "200":
-  #         description: OK
-  #         content:
-  #           application/json:
-  #             schema:
-  #               type: array
-  #               items:
-  #                 type: boolean
-  #       "400":
-  #         description: invalid params
-  # /getLastWatchedRecipies:
-  #   get:
-  #     description: get the last recipe that the user watched
-  #     parameters:
-  #     - name: username
-  #       in: query
-  #       required: true
-  #       style: form
-  #       explode: true
-  #       schema:
-  #         type: string
-  #     - name: quantity
-  #       in: query
-  #       description: "number of wanted recipes, by default 3"
-  #       required: false
-  #       style: form
-  #       explode: true
-  #       schema:
-  #         type: integer
-  #     responses:
-  #       "200":
-  #         description: OK
-  #         content:
-  #           application/json:
-  #             schema:
-  #               type: array
-  #               items:
-  #                 $ref: '#/components/schemas/SummariedRecipe'
-  #       "400":
-  #         description: params invalid
-  # /getMyRecepies:
-  #   get:
-  #     description: get the recipes that where written by the user
-  #     parameters:
-  #     - name: username
-  #       in: query
-  #       required: true
-  #       style: form
-  #       explode: true
-  #       schema:
-  #         type: string
-  #     responses:
-  #       "200":
-  #         description: OK
-  #         content:
-  #           application/json:
-  #             schema:
-  #               type: array
-  #               items:
-  #                 $ref: '#/components/schemas/SummariedRecipe'
-  #       "400":
-  #         description: params invalid
-  # /setMyRecipies:
-  #   post:
-  #     description: set the recipes written by the user
-  #     requestBody:
-  #       content:
-  #         application/json:
-  #           schema:
-  #             type: object
-  #       required: true
-  #     responses:
-  #       "200":
-  #         description: successfully registered
-  #         content:
-  #           application/json:
-  #             schema:
-  #               $ref: '#/components/schemas/setMyRecipeParams'
-  #       "400":
-  #         description: params invalid
- 
-
-
-
-
-
-
-
-
-
-# ///////////////////////////////////////מימשו לנו /////////////////////////////////////////
+  /users/family:
+    get:
+      description: get all recipes of the users family
+      parameters:
+        - in: cookie
+          name: user_id
+          description: The user id to retrieve its' family recipes
+          required: true
+          schema:
+            type: integer      
+      responses:
+        "200":
+          description: perviews all recipes of the user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DetailedRecipe'
+        "400":
+          description: error perviewing the recipes of the user
 
 components:
   schemas:
@@ -646,70 +528,3 @@ components:
           example: mix all ingredients
         isDone:
           type: boolean
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  # //////////////////////////////////////////שלנו////////////////////////////////////////
-
-    
-    # SearchOptions:
-    #   type: object
-    #   properties:
-    #     isFood:
-    #       type: boolean
-    #       description: true if user is searchong for specific food
-    #     quantity:
-    #       type: integer
-    #       description: "the user choose the amount of recipes to desply 5/10/15 , by default 5."
-    #     dietType:
-    #       $ref: '#/components/schemas/DietType'
-    # DietType:
-    #   type: string
-    #   enum:
-    #   - keto
-    #   - sugar free
-    #   - healthy
-    #   - junk food
-    #   - gluten free
-    #   - vegan
-    #   - vegetarian
-    #   - kohsher
-    # createRecipeParams:
-    #   type: object
-    #   properties:
-    #     detailedRecipe:
-    #       $ref: '#/components/schemas/DetailedRecipe'
-    #     username:
-    #       type: string
-    # setMyRecipeParams:
-    #   type: object
-    #   properties:
-    #     detailedRecipe:
-    #       $ref: '#/components/schemas/DetailedRecipe'
-    #     username:
-    #       type: string
-    
-    # Food:
-    #   type: object
-    #   properties:
-    #     id:
-    #       type: integer
-    #     name:
-    #       type: string
-    #     Recipes:
-    #       type: array
-    #       items:
-    #         $ref: '#/components/schemas/SummariedRecipe'
-    
-  

@@ -64,17 +64,6 @@ router.post('/createRecipe', async (req,res,next) => {
 /**
  * This path returns a preview details of a recipe by its id
  */
-// router.get("/:recipeId", async (req, res, next) => {
-//   try {
-//     const user_id = req.session.user_id;
-//     const recipeId=req.params.recipeId;
-//     const recipe = await recipes_utils.getRecipeDetails(recipeId);
-//     await user_utils.insertWatched(user_id,recipeId);
-//     res.send(recipe);
-//   } catch (error) {
-//     next(error);
-//   }
-// });
 
 router.get("/:recipeId", async (req, res, next) => {
   try {

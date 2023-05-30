@@ -1,6 +1,6 @@
 var express = require("express");
 var router = express.Router();
-const DButils = require("./utils/DButils");
+const DButils = require("../routes/utils/DButils");
 const user_utils = require("./utils/user_utils");
 const recipe_utils = require("./utils/recipes_utils");
 
@@ -15,6 +15,7 @@ router.use(async function (req, res, next) {
         next();
       }
     }).catch(err => next(err));
+    await DButils.execQuery( `COMMIT`);
   } else {
     res.sendStatus(401);
   }
@@ -78,6 +79,18 @@ router.get('/myRecipes', async(req,res,next) => {
   }
 });
 
+/**
+ * This path returns the favorites recipes that were saved by the logged-in user
+ */
+router.get("/family", async (req, res, next) => {
+  try {
+    const user_id = req.session.user_id;
+    const recipes = await user_utils.getFamilyRecipes(user_id);
+    res.status(200).send(recipes);
+  } catch (error) {
+    next(error);
+  }
+});
 
 
 
