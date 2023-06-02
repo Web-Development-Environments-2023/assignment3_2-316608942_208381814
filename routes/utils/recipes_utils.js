@@ -61,7 +61,7 @@ async function getRandomRecipesAPI() {
     let recipes_info = await getRandomRecipesAPI();
     let recipes = [];
     for (let i = 0; i < recipes_info.data.recipes.length; i++) {
-      recipes.push(getRecipeDetails(recipes_info[i],user_id));
+       await recipes.push(getRecipeDetails(recipes_info.data.recipes[i].id,user_id));
     }
     return recipes;
   }
@@ -131,7 +131,8 @@ async function getRandomRecipesAPI() {
   async function getRecipesPreview(user_id, recipes) {
     let recipesToReturn = [];
     for (let i = 0; i < recipes.length; i++) {
-      await recipesToReturn.push(getRecipeDetails(recipes[i]["id"],user_id));
+      if (recipes[i]["id"]){await recipesToReturn.push(getRecipeDetails(recipes[i]["id"],user_id));}
+      else{await recipesToReturn.push(getRecipeDetails(recipes[i]["recipeId"],user_id));}
     }
     return recipesToReturn;
   }

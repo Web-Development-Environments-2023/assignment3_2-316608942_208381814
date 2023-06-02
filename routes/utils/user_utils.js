@@ -42,7 +42,7 @@ async function isFavorite(user_id, recipeId) {
 
 async function getLastWatches(user_id) {
     const lastWatches = await DButils.execQuery(
-      `select recipeId from watchs where user_id='${user_id}' ORDER BY time DESC LIMIT 3`
+      `select recipeId from watchs where user_id='${user_id}' ORDER BY count DESC LIMIT 3`
     );
     await DButils.execQuery( `COMMIT`);
     return lastWatches;

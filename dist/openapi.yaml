@@ -166,6 +166,8 @@ paths:
 
   /recipes/getRecipeFullDetails/{recipeId}:
     get:
+      tags:
+      - Recipes
       description: get a recipe by recipe id
       parameters:
       - name: id
@@ -188,6 +190,8 @@ paths:
 
   /recipes/searchRecipe:
     get:
+      tags:
+      - Recipes
       description: search recipes
       parameters:
       - in: cookie
@@ -220,6 +224,8 @@ paths:
 
   /recipes/random:
     get:
+      tags:
+      - Recipes
       description: get random recipes
       parameters:
         - in: cookie
@@ -242,6 +248,8 @@ paths:
 
   /recipes/createRecipe:
     post:
+      tags:
+      - Recipes
       description: add new recipe by user
       parameters:
         - in: cookie
@@ -270,6 +278,8 @@ paths:
 
   /users/getlastWatches:
     get:
+      tags:
+      - Users
       description: get 3 last watches recipes
       parameters:
         - in: cookie
@@ -293,6 +303,8 @@ paths:
 
   /users/myRecipes:
     get:
+      tags:
+      - Users
       description: get all recipes of the user
       parameters:
         - in: cookie
@@ -315,6 +327,8 @@ paths:
 
   /users/family:
     get:
+      tags:
+      - Users
       description: get all recipes of the users family
       parameters:
         - in: cookie
