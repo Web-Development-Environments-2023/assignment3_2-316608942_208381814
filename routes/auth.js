@@ -4,6 +4,26 @@ const MySql = require("../routes/utils/MySql");
 const DButils = require("../routes/utils/DButils");
 const bcrypt = require("bcrypt");
 
+const session = require('express-session');
+const cookieParser = require('cookie-parser');
+const { default: Axios } = require("axios");
+
+const app = express(); // Instantiate the Express application
+app.use(cookieParser());
+app.use(
+  session({
+    secret: 'your-secret-key', // Set a secret key for signing the session cookie
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: false, // Set to true if using HTTPS
+      httpOnly: true, // Ensures the cookie is only accessed through HTTP requests
+      maxAge: 24 * 60 * 60 * 1000, // Expiration time for the cookie (in milliseconds)
+    },
+  })
+);
+
+
 router.post("/Register", async (req, res, next) => {
   try {
     // parameters exists
@@ -19,7 +39,7 @@ router.post("/Register", async (req, res, next) => {
       //profilePic: req.body.profilePic
     };
     let users = [];
-    users = await DButils.execQuery("SELECT user_id from users");
+    users = await DButils.execQuery("SELECT username from users");
     await DButils.execQuery( `COMMIT`);
 
     if (users.find((x) => x.username === user_details.username))
@@ -41,8 +61,13 @@ router.post("/Register", async (req, res, next) => {
   }
 });
 
+
+
+
 router.post("/Login", async (req, res, next) => {
   try {
+    // const url = "localhost:8080";
+    // const response = await Axios.get(url,{withCredentials: true} );
     // check that username exists
     const users = await DButils.execQuery("SELECT username FROM users");
     await DButils.execQuery( `COMMIT`);
@@ -62,8 +87,12 @@ router.post("/Login", async (req, res, next) => {
     }
 
     // Set cookie
-    req.session.user_id = user.user_id;
-
+    req.session.username = user.username;
+    // Set a cookie on the response
+    // res.cookie('session', req.session.user_id, {
+    //   maxAge: 24 * 60 * 60 * 1000, // Same as the session cookie expiration time
+    //   httpOnly: true,
+    // });
 
     // return cookie
     res.status(200).send({ message: "login succeeded", success: true });
@@ -72,13 +101,24 @@ router.post("/Login", async (req, res, next) => {
   }
 });
 
-router.post("/Logout", async (req, res, next) => {
+
+
+router.post('/Logout', async (req, res, next) => {
   try {
-    req.session.reset(); // reset the session info --> send cookie when  req.session == undefined!!
-    res.send({ success: true, message: "logout succeeded" });
-  }catch (error) {
+    req.session.destroy(); // Destroy the session
+    res.clearCookie('session'); // Clear the session cookie
+    res.send({ success: true, message: 'logout succeeded' });
+  } catch (error) {
     next(error);
-}
+  }
 });
+// router.post("/Logout", async (req, res, next) => {
+//   try {
+//     req.session.reset(); // reset the session info --> send cookie when  req.session == undefined!!
+//     res.send({ success: true, message: "logout succeeded" });
+//   }catch (error) {
+//     next(error);
+// }
+// });
 
 module.exports = router;

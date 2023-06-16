@@ -1,21 +1,22 @@
 var express = require("express");
 var router = express.Router();
 const DButils = require("../utils/DButils");
+const { Session } = require("inspector");
 
-async function markAsFavorite(user_id, recipe_id){
-    await DButils.execQuery(`insert into recipefavorite (user_id,recipeId) values ('${user_id}',${recipe_id})`);
+async function markAsFavorite(username, recipe_id){
+    await DButils.execQuery(`insert into recipefavorite (username,recipeId) values ('${username}',${recipe_id})`);
     await DButils.execQuery( `COMMIT`);
 }
 
-async function getFavoriteRecipes(user_id){
-    const recipes_id = await DButils.execQuery(`select recipeId from recipefavorite where user_id='${user_id}'`);
+async function getFavoriteRecipes(username){
+    const recipes_id = await DButils.execQuery(`select recipeId from recipefavorite where username='${username}'`);
     await DButils.execQuery( `COMMIT`);
     return recipes_id;
 }
 
-async function isWatched(user_id, recipeId) {
+async function isWatched(username, recipeId) {
     let res = await DButils.execQuery(
-      `select recipeId from watchs where user_id='${user_id}' AND recipeId='${recipeId}'`
+      `select recipeId from watchs where username='${username}' AND recipeId='${recipeId}'`
     );
     await DButils.execQuery( `COMMIT`);
     if (res.length == 0) {
@@ -24,14 +25,14 @@ async function isWatched(user_id, recipeId) {
     return true;
   }
  
-async function insertWatched(user_id, recipe_id) {
-    await DButils.execQuery( `INSERT INTO watchs (user_id,recipeId) VALUES ('${user_id}','${recipe_id}')`);
+async function insertWatched(username, recipe_id) {
+    await DButils.execQuery( `INSERT INTO watchs (username,recipeId) VALUES ('${username}','${recipe_id}')`);
     await DButils.execQuery( `COMMIT`);
 
 }
-async function isFavorite(user_id, recipeId) {
+async function isFavorite(username, recipeId) {
     let res = await DButils.execQuery(
-      `select recipeId from recipefavorite where user_id='${user_id}' AND recipeId='${recipeId}'`
+      `select recipeId from recipefavorite where username='${username}' AND recipeId='${recipeId}'`
     );
     await DButils.execQuery( `COMMIT`);
     if (res.length == 0) {
@@ -40,29 +41,51 @@ async function isFavorite(user_id, recipeId) {
     return true;
   }
 
-async function getLastWatches(user_id) {
-    const lastWatches = await DButils.execQuery(
-      `select recipeId from watchs where user_id='${user_id}' ORDER BY count DESC LIMIT 3`
-    );
-    await DButils.execQuery( `COMMIT`);
-    return lastWatches;
+async function getLastWatches(username) {
+    const lastWatches = await DButils.execQuery(`
+    SELECT recipeId, username
+    FROM (
+      SELECT DISTINCT recipeId, username
+      FROM watchs
+      WHERE username = '${username}'
+    ) AS subquery
+    ORDER BY recipeId DESC
+    LIMIT 3
+  `);
+    await DButils.execQuery(`COMMIT`);
+    return lastWatches.map(watch => watch.recipeId);
+    // return lastWatches.map(watch => watch.recipeId);
   }
 
 //get all the recipe_ids created by the user. 
-async function getMyRecipes(user_id){
+async function getMyRecipes(username){
   const recipe_ids = await DButils.execQuery(
-    `select recipeId from personalrecipe where user_id='${user_id}'`
+    `select recipeId from personalrecipe where username='${username}'`
   );
   await DButils.execQuery( `COMMIT`);
   return recipe_ids;
 }
   
-async function getFamilyRecipes(user_id) {
+async function getFamilyRecipes(username) {
   const recipes = await DButils.execQuery(
-    `select * from family where user_id='${user_id}'`
+    `select * from family where username='${username}'`
   );
   await DButils.execQuery( `COMMIT`);
   return recipes;
+}
+
+async function extractUserId(req){
+  // console.log(req);
+  const cookieHeader = req.headers.cookie;
+  const indexOfEquals = cookieHeader.indexOf('=');
+  const username = cookieHeader.substring(0, indexOfEquals);
+  // console.log(username);
+  // const user_id = (
+  //   await DButils.execQuery(
+  //     `SELECT user_id FROM users WHERE username = '${username}'`
+  //   ))[0]["user_id"];
+  // console.log(user_id);
+  return username;
 }
 
 
@@ -75,4 +98,5 @@ exports.isFavorite = isFavorite;
 exports.getMyRecipes = getMyRecipes;
 exports.getLastWatches = getLastWatches;
 exports.getFamilyRecipes = getFamilyRecipes;
+exports.extractUserId=extractUserId;
 

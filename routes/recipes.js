@@ -10,8 +10,13 @@ router.get("/", (req, res) => res.send("im here"));
  */
 router.get("/random", async (req, res, next) => {
   try {
-    const user_id = req.session.user_id;
-    const recipes = await recipes_utils.getRandomRecipes(user_id);
+    // console.log(req.headers.cookie);
+    const username = await user_utils.extractUserId(req);
+    // console.log(user_id);
+    //const username = req.session.username;
+    //console.log(req);
+    //const user_id = req.headers["x-localstorage-data"];
+    const recipes = await recipes_utils.getRandomRecipes(username);
     res.send(recipes);
   } catch (error) {
     next(error);
@@ -24,9 +29,10 @@ router.get("/random", async (req, res, next) => {
  */
 router.get("/getRecipeFullDetails/:recipeId", async (req, res, next) => {
   try {
-    const user_id = req.session.user_id;
-    const recipe = await recipes_utils.getRecipeFullDetails(req.params.recipeId,user_id);
-    await user_utils.insertWatched(user_id,req.params.recipeId);
+    // const username = req.session.username;
+    const username = await user_utils.extractUserId(req);
+    const recipe = await recipes_utils.getRecipeFullDetails(username,req.params.recipeId);
+    await user_utils.insertWatched(req.params.recipeId);
     res.send(recipe);
   } catch (error) {
     next(error);
@@ -38,8 +44,9 @@ router.get("/getRecipeFullDetails/:recipeId", async (req, res, next) => {
  */
 router.get("/searchRecipe", async(req,res,next)=>{
   try{
-    const user_id= req.session.user_id;
-    const recipes = await recipes_utils.searchrecipe(user_id,req.query);
+    // const username= req.session.username;
+    const username = await user_utils.extractUserId(req);
+    const recipes = await recipes_utils.searchrecipe(username,req.query);
     res.send(recipes);
   }
   catch(error){
@@ -52,9 +59,10 @@ router.get("/searchRecipe", async(req,res,next)=>{
  */
 router.post('/createRecipe', async (req,res,next) => {
   try{
-    const user_id = req.session.user_id;
+    // const username = req.session.username;
+    const username = await user_utils.extractUserId(req);
     const recipe = req.body;
-    await recipes_utils.insertRecipe(user_id,recipe);
+    await recipes_utils.insertRecipe(username,recipe);
     res.status(200).send("The recipe was successfully added to the site!");
   } catch(error){
     next(error); 
@@ -67,9 +75,10 @@ router.post('/createRecipe', async (req,res,next) => {
 
 router.get("/:recipeId", async (req, res, next) => {
   try {
-    const user_id = req.session.user_id;
-    const recipe = await recipes_utils.getRecipeDetails(req.params.recipeId);
-    await user_utils.insertWatched(user_id, req.params.recipeId);
+    // const username = req.session.username;
+    const username = await user_utils.extractUserId(req);
+    const recipe = await recipes_utils.getRecipeFullDetails(username,req.params.recipeId);
+    await user_utils.insertWatched(username, req.params.recipeId);
     res.send(recipe);
   } catch (error) {
     next(error);
