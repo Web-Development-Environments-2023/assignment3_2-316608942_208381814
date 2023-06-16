@@ -61,6 +61,7 @@ router.get('/getlastWatches', async (req, res, next) => {
  try {
   //  const username = req.session.username;
   const username = await user_utils.extractUserId(req);
+
    const recipes_id = await user_utils.getLastWatches(username);
   //  console.log(recipes_id);
   //  let recipes_id_array = [];

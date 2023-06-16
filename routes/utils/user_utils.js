@@ -63,7 +63,7 @@ async function getMyRecipes(username){
     `select recipeId from personalrecipe where username='${username}'`
   );
   await DButils.execQuery( `COMMIT`);
-  return recipe_ids.map(watch => watch.recipeId);;
+  return recipe_ids.map(watch => watch.recipeId);
 }
   
 async function getFamilyRecipes(username) {
@@ -76,16 +76,21 @@ async function getFamilyRecipes(username) {
 
 async function extractUserId(req){
   // console.log(req);
-  const cookieHeader = req.headers.cookie;
-  const indexOfEquals = cookieHeader.indexOf('=');
-  const username = cookieHeader.substring(0, indexOfEquals);
+  try{
+    const cookieHeader = req.headers.cookie;
+    const indexOfEquals = cookieHeader.indexOf('=');
+    const username = cookieHeader.substring(0, indexOfEquals);
+    return username;
+  }catch(error){
+    username=null;
+    return username;
+  }
   // console.log(username);
   // const user_id = (
   //   await DButils.execQuery(
   //     `SELECT user_id FROM users WHERE username = '${username}'`
   //   ))[0]["user_id"];
   // console.log(user_id);
-  return username;
 }
 
 

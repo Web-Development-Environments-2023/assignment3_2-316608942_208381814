@@ -143,7 +143,8 @@ async function getRandomRecipesAPI() {
 
   async function searchrecipe(username,query){
     let recipes_info = await searchRecipeAPI(query);
-    return await getRecipesPreview(username, recipes_info.data.results);
+    const recipes = await recipes_info.data.results.map(element =>  element.id);
+    return await getRecipesPreview(username,recipes);
   }
 
 
