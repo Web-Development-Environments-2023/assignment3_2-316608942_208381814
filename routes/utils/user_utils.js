@@ -63,7 +63,7 @@ async function getMyRecipes(username){
     `select recipeId from personalrecipe where username='${username}'`
   );
   await DButils.execQuery( `COMMIT`);
-  return recipe_ids;
+  return recipe_ids.map(watch => watch.recipeId);;
 }
   
 async function getFamilyRecipes(username) {

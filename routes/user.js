@@ -3,6 +3,7 @@ var router = express.Router();
 const DButils = require("../routes/utils/DButils");
 const user_utils = require("./utils/user_utils");
 const recipe_utils = require("./utils/recipes_utils");
+const { Console } = require("console");
 /**
  * Authenticate all incoming requests by middleware
  */
@@ -45,8 +46,8 @@ router.get('/favorites', async (req,res,next) => {
     // const username = req.session.username;
     const recipes_id = await user_utils.getFavoriteRecipes(username);
     let recipes_id_array = [];
-    await recipes_id.map((element) => recipes_id_array.push(element)); //extracting the recipe into array
-    const results = await recipe_utils.getRecipesPreview(username_id,recipes_id_array);
+    await recipes_id.map((element) => recipes_id_array.push(element.recipeId)); //extracting the recipe into array
+    const results = await recipe_utils.getRecipesPreview(username,recipes_id_array);
     res.status(200).send(results);
   } catch(error){
     next(error); 
@@ -74,8 +75,10 @@ router.get('/getlastWatches', async (req, res, next) => {
 router.get('/myRecipes', async(req,res,next) => {
   try{
     const username = await user_utils.extractUserId(req);
+
     // const username = req.session.username;
     const recipes = await user_utils.getMyRecipes(username);
+
     const results = await recipe_utils.getRecipesPreview(username,recipes);
     res.send(results);
   } catch(error){
