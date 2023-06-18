@@ -79,7 +79,7 @@ router.get("/:recipeId", async (req, res, next) => {
     // const username = req.session.username;
     const username = await user_utils.extractUserId(req);
     const recipe = await recipes_utils.getRecipeFullDetails(username,req.params.recipeId);
-    await user_utils.insertWatched(username, req.params.recipeId);
+    // await user_utils.insertWatched(username, req.params.recipeId);
     res.send(recipe);
   } catch (error) {
     next(error);

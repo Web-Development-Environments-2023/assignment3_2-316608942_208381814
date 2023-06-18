@@ -60,10 +60,10 @@ async function getLastWatches(username) {
 //get all the recipe_ids created by the user. 
 async function getMyRecipes(username){
   const recipe_ids = await DButils.execQuery(
-    `select recipeId from personalrecipe where username='${username}'`
+    `select id from recipes where username='${username}'`
   );
   await DButils.execQuery( `COMMIT`);
-  return recipe_ids.map(watch => watch.recipeId);
+  return recipe_ids.map(watch => watch.id);
 }
   
 async function getFamilyRecipes(username) {
