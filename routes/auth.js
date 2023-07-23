@@ -36,7 +36,6 @@ router.post("/Register", async (req, res, next) => {
       password: req.body.password,
       country: req.body.country,
       email: req.body.email,
-      //profilePic: req.body.profilePic
     };
     let users = [];
     users = await DButils.execQuery("SELECT username from users");
@@ -112,13 +111,5 @@ router.post('/Logout', async (req, res, next) => {
     next(error);
   }
 });
-// router.post("/Logout", async (req, res, next) => {
-//   try {
-//     req.session.reset(); // reset the session info --> send cookie when  req.session == undefined!!
-//     res.send({ success: true, message: "logout succeeded" });
-//   }catch (error) {
-//     next(error);
-// }
-// });
 
 module.exports = router;

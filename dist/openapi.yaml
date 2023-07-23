@@ -73,7 +73,6 @@ paths:
       responses:
         "200":
           description: "the user has been successfully logged out"
-
     
   /users/favorites:
     get:
@@ -130,6 +129,80 @@ paths:
           description: user is not authorized
       security:
       - cookieAuth: []
+
+  /users/getlastWatches:
+    get:
+      tags:
+      - Users
+      description: get 3 last watches recipes
+      parameters:
+        - in: cookie
+          name: user_id
+          description: The user id to retrieve the users last watches
+          required: true
+          schema:
+            type: integer          
+      responses:
+        "200":
+          description: data about the last watched recipes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DetailedRecipe'
+        "400":
+          description: no open session 
+
+
+  /users/myRecipes:
+    get:
+      tags:
+      - Users
+      description: get all recipes of the user
+      parameters:
+        - in: cookie
+          name: user_id
+          description: The user id to retrieve its' recipes
+          required: true
+          schema:
+            type: integer    
+      responses:
+        "200":
+          description: perviews all recipes of the user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DetailedRecipe'
+        "400":
+          description: error perviewing the recipes of the user
+
+  /users/family:
+    get:
+      tags:
+      - Users
+      description: get all recipes of the users family
+      parameters:
+        - in: cookie
+          name: user_id
+          description: The user id to retrieve its' family recipes
+          required: true
+          schema:
+            type: integer      
+      responses:
+        "200":
+          description: perviews all recipes of the user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DetailedRecipe'
+        "400":
+          description: error perviewing the recipes of the user
+
 
 
   /recipes/{recipeId}:
@@ -274,81 +347,7 @@ paths:
                     $ref: '#/components/schemas/createRecipe'
           "400":
             description: couldn't add recipe to site 
-
-
-  /users/getlastWatches:
-    get:
-      tags:
-      - Users
-      description: get 3 last watches recipes
-      parameters:
-        - in: cookie
-          name: user_id
-          description: The user id to retrieve the users last watches
-          required: true
-          schema:
-            type: integer          
-      responses:
-        "200":
-          description: data about the last watched recipes
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/DetailedRecipe'
-        "400":
-          description: no open session 
-
-
-  /users/myRecipes:
-    get:
-      tags:
-      - Users
-      description: get all recipes of the user
-      parameters:
-        - in: cookie
-          name: user_id
-          description: The user id to retrieve its' recipes
-          required: true
-          schema:
-            type: integer    
-      responses:
-        "200":
-          description: perviews all recipes of the user
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/DetailedRecipe'
-        "400":
-          description: error perviewing the recipes of the user
-
-  /users/family:
-    get:
-      tags:
-      - Users
-      description: get all recipes of the users family
-      parameters:
-        - in: cookie
-          name: user_id
-          description: The user id to retrieve its' family recipes
-          required: true
-          schema:
-            type: integer      
-      responses:
-        "200":
-          description: perviews all recipes of the user
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/DetailedRecipe'
-        "400":
-          description: error perviewing the recipes of the user
-
+            
 components:
   schemas:
      User:

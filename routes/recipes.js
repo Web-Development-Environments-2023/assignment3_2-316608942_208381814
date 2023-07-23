@@ -11,12 +11,7 @@ router.get("/", (req, res) => res.send("im here"));
  */
 router.get("/random", async (req, res, next) => {
   try {
-    // console.log(req.headers.cookie);
     const username = await user_utils.extractUserId(req);
-    // console.log(user_id);
-    //const username = req.session.username;
-    //console.log(req);
-    //const user_id = req.headers["x-localstorage-data"];
     const recipes = await recipes_utils.getRandomRecipes(username);
     res.send(recipes);
   } catch (error) {
@@ -30,10 +25,9 @@ router.get("/random", async (req, res, next) => {
  */
 router.get("/getRecipeFullDetails/:recipeId", async (req, res, next) => {
   try {
-    // const username = req.session.username;
     const username = await user_utils.extractUserId(req);
     const recipe = await recipes_utils.getRecipeFullDetails(username,req.params.recipeId);
-    await user_utils.insertWatched(req.params.recipeId);
+    await user_utils.insertWatched(username,req.params.recipeId);
     res.send(recipe);
   } catch (error) {
     next(error);
@@ -45,7 +39,6 @@ router.get("/getRecipeFullDetails/:recipeId", async (req, res, next) => {
  */
 router.get("/searchRecipe", async(req,res,next)=>{
   try{
-    // const username= req.session.username;
     const username = await user_utils.extractUserId(req);
     const recipes = await recipes_utils.searchrecipe(username,req.query);
     res.send(recipes);
@@ -76,10 +69,9 @@ router.post('/createRecipe', async (req,res,next) => {
 
 router.get("/:recipeId", async (req, res, next) => {
   try {
-    // const username = req.session.username;
     const username = await user_utils.extractUserId(req);
     const recipe = await recipes_utils.getRecipeFullDetails(username,req.params.recipeId);
-    // await user_utils.insertWatched(username, req.params.recipeId);
+    await user_utils.insertWatched(username, req.params.recipeId);
     res.send(recipe);
   } catch (error) {
     next(error);
